@@ -3,7 +3,7 @@ package com.edutech.edutech.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
-import com.edutech.edutech.model.Curso;
+//import com.edutech.edutech.model.Curso; no se usa esta importacion //
 
 @Entity
 @Data
