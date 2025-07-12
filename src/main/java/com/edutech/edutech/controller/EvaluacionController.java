@@ -32,12 +32,12 @@ public class EvaluacionController {
     @Operation(summary = "Lista todas las evaluaciones", description = "Devuelve todas las evaluaciones registradas")
     @GetMapping
     public CollectionModel<EntityModel<Evaluacion>> listar() {
-        List<EntityModel<Evaluacion>> evaluaciones = evaluacionRepository.findAll().stream()
+        List<EntityModel<Evaluacion>> evaluaciones = evaluacionRepository.findAll()
+                .stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
-        return CollectionModel.of(evaluaciones,
-                linkTo(methodOn(EvaluacionController.class).listar()).withSelfRel());
+        return CollectionModel.of(evaluaciones, linkTo(methodOn(EvaluacionController.class).listar()).withSelfRel());
     }
 
     @Operation(summary = "Crea una evaluación", description = "Registra una nueva evaluación en la base de datos")
@@ -62,6 +62,9 @@ public class EvaluacionController {
     @Operation(summary = "Actualiza evaluación", description = "Modifica los datos de una evaluación existente")
     @PutMapping("/{id}")
     public EntityModel<Evaluacion> actualizar(@PathVariable Long id, @RequestBody Evaluacion evaluacion) {
+        if (!evaluacionRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evaluación no encontrada");
+        }
         evaluacion.setId(id);
         Evaluacion actualizada = evaluacionRepository.save(evaluacion);
         return assembler.toModel(actualizada);
@@ -70,6 +73,9 @@ public class EvaluacionController {
     @Operation(summary = "Elimina evaluación", description = "Elimina una evaluación de la base de datos")
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable Long id) {
+        if (!evaluacionRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evaluación no encontrada");
+        }
         evaluacionRepository.deleteById(id);
     }
 }

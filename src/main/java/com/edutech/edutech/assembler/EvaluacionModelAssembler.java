@@ -14,7 +14,7 @@ public class EvaluacionModelAssembler implements RepresentationModelAssembler<Ev
     @Override
     public EntityModel<Evaluacion> toModel(Evaluacion evaluacion) {
         return EntityModel.of(evaluacion,
-                linkTo(methodOn(EvaluacionController.class).buscar(evaluacion.getId())).withSelfRel(),
-                linkTo(methodOn(EvaluacionController.class).listar()).withRel("evaluaciones"));
+            linkTo(methodOn(EvaluacionController.class).buscar(evaluacion.getId())).withSelfRel(),
+            linkTo(methodOn(EvaluacionController.class).listar()).withRel("evaluaciones"));
     }
 }

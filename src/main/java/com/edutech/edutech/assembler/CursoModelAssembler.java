@@ -16,8 +16,5 @@ public class CursoModelAssembler implements RepresentationModelAssembler<Curso, 
         return EntityModel.of(curso,
                 linkTo(methodOn(CursoController.class).buscar(curso.getId())).withSelfRel(),
                 linkTo(methodOn(CursoController.class).listar()).withRel("cursos"));
-                linkTo(methodOn(CursoController.class).actualizar(curso.getId(), curso)).withRel("actualizar"),
-                linkTo(methodOn(CursoController.class).eliminar(curso.getId())).withRel("eliminar")
-        );
     }
 }

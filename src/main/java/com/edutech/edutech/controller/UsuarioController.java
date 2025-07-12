@@ -30,8 +30,7 @@ public class UsuarioController {
     @Operation(summary = "Lista todos los usuarios", description = "Devuelve todos los usuarios registrados")
     @GetMapping
     public CollectionModel<EntityModel<Usuario>> listar() {
-        List<EntityModel<Usuario>> usuarios = usuarioRepository.findAll()
-                .stream()
+        List<EntityModel<Usuario>> usuarios = usuarioRepository.findAll().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
@@ -41,14 +40,14 @@ public class UsuarioController {
     @Operation(summary = "Crea un usuario", description = "Registra un nuevo usuario en la base de datos")
     @PostMapping
     public EntityModel<Usuario> crear(@RequestBody Usuario usuario) {
-        Usuario nuevo = usuarioRepository.save(usuario);
-        return assembler.toModel(nuevo);
+        Usuario nuevoUsuario = usuarioRepository.save(usuario);
+        return assembler.toModel(nuevoUsuario);
     }
 
     @Operation(summary = "Obtiene usuario por ID", description = "Busca un usuario por su identificador único")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
-        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @GetMapping("/{id}")
     public EntityModel<Usuario> buscar(@PathVariable Long id) {

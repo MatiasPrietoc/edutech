@@ -8,12 +8,17 @@ import org.springframework.stereotype.Component;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
+/**
+ * Convierte una entidad {@link Profesor} en un {@link EntityModel}
+ * con enlaces HATEOAS (self, lista general, actualizar y eliminar).
+ */
 @Component
 public class ProfesorModelAssembler implements RepresentationModelAssembler<Profesor, EntityModel<Profesor>> {
 
     @Override
     public EntityModel<Profesor> toModel(Profesor profesor) {
-        return EntityModel.of(profesor,
+        return EntityModel.of(
+                profesor,
                 linkTo(methodOn(ProfesorController.class).buscar(profesor.getId())).withSelfRel(),
                 linkTo(methodOn(ProfesorController.class).listar()).withRel("profesores"),
                 linkTo(methodOn(ProfesorController.class).actualizar(profesor.getId(), profesor)).withRel("actualizar"),

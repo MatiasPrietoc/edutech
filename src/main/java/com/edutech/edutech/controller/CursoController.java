@@ -1,14 +1,12 @@
 package com.edutech.edutech.controller;
 
 import com.edutech.edutech.assembler.CursoModelAssembler;
+import com.edutech.edutech.exception.ResourceNotFoundException;
 import com.edutech.edutech.model.Curso;
 import com.edutech.edutech.repository.CursoRepository;
-import com.edutech.edutech.exception.ResourceNotFoundException;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
@@ -56,15 +54,16 @@ public class CursoController {
     @GetMapping("/{id}")
     public EntityModel<Curso> buscar(@PathVariable Long id) {
         Curso curso = cursoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado con id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado con ID: " + id));
         return assembler.toModel(curso);
     }
 
     @Operation(summary = "Actualiza un curso", description = "Modifica los datos de un curso existente")
     @PutMapping("/{id}")
     public EntityModel<Curso> actualizar(@PathVariable Long id, @RequestBody Curso curso) {
-        cursoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado con id " + id));
+        if (!cursoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Curso no encontrado con ID: " + id);
+        }
         curso.setId(id);
         Curso actualizado = cursoRepository.save(curso);
         return assembler.toModel(actualizado);
@@ -73,8 +72,9 @@ public class CursoController {
     @Operation(summary = "Elimina un curso", description = "Elimina un curso de la base de datos")
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable Long id) {
-        Curso curso = cursoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado con id " + id));
-        cursoRepository.delete(curso);
+        if (!cursoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Curso no encontrado con ID: " + id);
+        }
+        cursoRepository.deleteById(id);
     }
 }
