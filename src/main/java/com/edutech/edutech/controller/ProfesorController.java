@@ -1,5 +1,6 @@
 package com.edutech.edutech.controller;
 
+import com.edutech.edutech.assembler.ProfesorModelAssembler;
 import com.edutech.edutech.model.Profesor;
 import com.edutech.edutech.repository.ProfesorRepository;
 import org.springframework.web.bind.annotation.*;
@@ -13,15 +14,11 @@ import java.util.List;
 public class ProfesorController {
 
     private final ProfesorRepository profesorRepository;
+    private final ProfesorModelAssembler assembler;
 
-    public ProfesorController(ProfesorRepository profesorRepository) {
+    public ProfesorController(ProfesorRepository profesorRepository, ProfesorModelAssembler assembler) {
         this.profesorRepository = profesorRepository;
-    }
-
-    @Operation(summary = "Lista todos los profesores", description = "Devuelve todos los profesores registrados")
-    @GetMapping
-    public List<Profesor> listar() {
-        return profesorRepository.findAll();
+        this.assembler = assembler;
     }
 
     @Operation(summary = "Crea un profesor", description = "Registra un nuevo profesor en la base de datos")
@@ -52,4 +49,5 @@ public class ProfesorController {
     public void eliminar(@PathVariable Long id) {
         profesorRepository.deleteById(id);
     }
+
 }

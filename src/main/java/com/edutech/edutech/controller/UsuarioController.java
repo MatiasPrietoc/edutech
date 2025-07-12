@@ -1,33 +1,48 @@
 package com.edutech.edutech.controller;
 
+import com.edutech.edutech.assembler.UsuarioModelAssembler;
 import com.edutech.edutech.model.Usuario;
 import com.edutech.edutech.repository.UsuarioRepository;
-import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
+    private final UsuarioModelAssembler assembler;
 
-    public UsuarioController(UsuarioRepository usuarioRepository) {
+    public UsuarioController(UsuarioRepository usuarioRepository, UsuarioModelAssembler assembler) {
         this.usuarioRepository = usuarioRepository;
+        this.assembler = assembler;
     }
 
     @Operation(summary = "Lista todos los usuarios", description = "Devuelve todos los usuarios registrados")
     @GetMapping
-    public List<Usuario> listar() {
-        return usuarioRepository.findAll();
+    public CollectionModel<EntityModel<Usuario>> listar() {
+        List<EntityModel<Usuario>> usuarios = usuarioRepository.findAll()
+                .stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        return CollectionModel.of(usuarios, linkTo(methodOn(UsuarioController.class).listar()).withSelfRel());
     }
 
     @Operation(summary = "Crea un usuario", description = "Registra un nuevo usuario en la base de datos")
     @PostMapping
-    public Usuario crear(@RequestBody Usuario usuario) {
-        return usuarioRepository.save(usuario);
+    public EntityModel<Usuario> crear(@RequestBody Usuario usuario) {
+        Usuario nuevo = usuarioRepository.save(usuario);
+        return assembler.toModel(nuevo);
     }
 
     @Operation(summary = "Obtiene usuario por ID", description = "Busca un usuario por su identificador único")
@@ -36,15 +51,17 @@ public class UsuarioController {
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @GetMapping("/{id}")
-    public Usuario buscar(@PathVariable Long id) {
-        return usuarioRepository.findById(id).orElse(null);
+    public EntityModel<Usuario> buscar(@PathVariable Long id) {
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+        return assembler.toModel(usuario);
     }
 
     @Operation(summary = "Actualiza usuario", description = "Modifica los datos de un usuario existente")
     @PutMapping("/{id}")
-    public Usuario actualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
+    public EntityModel<Usuario> actualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
         usuario.setId(id);
-        return usuarioRepository.save(usuario);
+        Usuario actualizado = usuarioRepository.save(usuario);
+        return assembler.toModel(actualizado);
     }
 
     @Operation(summary = "Elimina usuario", description = "Elimina un usuario de la base de datos")
