@@ -6,6 +6,7 @@ import com.edutech.edutech.repository.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
+@Tag(name = "Usuarios", description = "Operaciones relacionadas con los usuarios")
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -30,7 +32,8 @@ public class UsuarioController {
     @Operation(summary = "Lista todos los usuarios", description = "Devuelve todos los usuarios registrados")
     @GetMapping
     public CollectionModel<EntityModel<Usuario>> listar() {
-        List<EntityModel<Usuario>> usuarios = usuarioRepository.findAll().stream()
+        List<EntityModel<Usuario>> usuarios = usuarioRepository.findAll()
+                .stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
@@ -40,8 +43,8 @@ public class UsuarioController {
     @Operation(summary = "Crea un usuario", description = "Registra un nuevo usuario en la base de datos")
     @PostMapping
     public EntityModel<Usuario> crear(@RequestBody Usuario usuario) {
-        Usuario nuevoUsuario = usuarioRepository.save(usuario);
-        return assembler.toModel(nuevoUsuario);
+        Usuario nuevo = usuarioRepository.save(usuario);
+        return assembler.toModel(nuevo);
     }
 
     @Operation(summary = "Obtiene usuario por ID", description = "Busca un usuario por su identificador único")

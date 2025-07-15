@@ -4,19 +4,17 @@ import com.edutech.edutech.assembler.EvaluacionModelAssembler;
 import com.edutech.edutech.model.Evaluacion;
 import com.edutech.edutech.repository.EvaluacionRepository;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
+@Tag(name = "Evaluaciones", description = "Operaciones relacionadas con las evaluaciones")
 @RestController
 @RequestMapping("/evaluaciones")
 public class EvaluacionController {
@@ -29,7 +27,7 @@ public class EvaluacionController {
         this.assembler = assembler;
     }
 
-    @Operation(summary = "Lista todas las evaluaciones", description = "Devuelve todas las evaluaciones registradas")
+    @Operation(summary = "Lista todas las evaluaciones")
     @GetMapping
     public CollectionModel<EntityModel<Evaluacion>> listar() {
         List<EntityModel<Evaluacion>> evaluaciones = evaluacionRepository.findAll()
@@ -40,42 +38,31 @@ public class EvaluacionController {
         return CollectionModel.of(evaluaciones, linkTo(methodOn(EvaluacionController.class).listar()).withSelfRel());
     }
 
-    @Operation(summary = "Crea una evaluación", description = "Registra una nueva evaluación en la base de datos")
+    @Operation(summary = "Crea una evaluación")
     @PostMapping
     public EntityModel<Evaluacion> crear(@RequestBody Evaluacion evaluacion) {
         Evaluacion nueva = evaluacionRepository.save(evaluacion);
         return assembler.toModel(nueva);
     }
 
-    @Operation(summary = "Obtiene evaluación por ID", description = "Busca una evaluación por su identificador único")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Evaluación encontrada"),
-        @ApiResponse(responseCode = "404", description = "Evaluación no encontrada")
-    })
+    @Operation(summary = "Obtiene evaluación por ID")
     @GetMapping("/{id}")
     public EntityModel<Evaluacion> buscar(@PathVariable Long id) {
-        Evaluacion evaluacion = evaluacionRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Evaluación no encontrada"));
+        Evaluacion evaluacion = evaluacionRepository.findById(id).orElse(null);
         return assembler.toModel(evaluacion);
     }
 
-    @Operation(summary = "Actualiza evaluación", description = "Modifica los datos de una evaluación existente")
+    @Operation(summary = "Actualiza una evaluación")
     @PutMapping("/{id}")
     public EntityModel<Evaluacion> actualizar(@PathVariable Long id, @RequestBody Evaluacion evaluacion) {
-        if (!evaluacionRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evaluación no encontrada");
-        }
         evaluacion.setId(id);
         Evaluacion actualizada = evaluacionRepository.save(evaluacion);
         return assembler.toModel(actualizada);
     }
 
-    @Operation(summary = "Elimina evaluación", description = "Elimina una evaluación de la base de datos")
+    @Operation(summary = "Elimina una evaluación")
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable Long id) {
-        if (!evaluacionRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evaluación no encontrada");
-        }
         evaluacionRepository.deleteById(id);
     }
 }
