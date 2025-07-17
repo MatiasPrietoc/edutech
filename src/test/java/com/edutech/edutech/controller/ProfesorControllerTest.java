@@ -2,44 +2,43 @@ package com.edutech.edutech.controller;
 
 import com.edutech.edutech.assembler.ProfesorModelAssembler;
 import com.edutech.edutech.model.Profesor;
-import com.edutech.edutech.repository.ProfesorRepository;
+import com.edutech.edutech.service.ProfesorService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.hateoas.EntityModel;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ProfesorControllerTest {
 
+    @Mock
+    private ProfesorService profesorService;
+
+    @Mock
+    private ProfesorModelAssembler assembler;
+
+    @InjectMocks
+    private ProfesorController profesorController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
-    public void testListarProfesores() {
-        // Simular repositorio
-        ProfesorRepository repo = Mockito.mock(ProfesorRepository.class);
+    void testBuscarProfesorPorId() {
+        Profesor profesor = new Profesor();
+        profesor.setId(1L);
+        when(profesorService.obtenerPorId(1L)).thenReturn(Optional.of(profesor));
 
-        Profesor prof1 = new Profesor();
-        prof1.setId(1L);
-        prof1.setNombre("Profesor A");
-
-        Profesor prof2 = new Profesor();
-        prof2.setId(2L);
-        prof2.setNombre("Profesor B");
-
-        when(repo.findAll()).thenReturn(Arrays.asList(prof1, prof2));
-
-        // Simular assembler
-        ProfesorModelAssembler assembler = Mockito.mock(ProfesorModelAssembler.class);
-        when(assembler.toModel(prof1)).thenReturn(EntityModel.of(prof1));
-        when(assembler.toModel(prof2)).thenReturn(EntityModel.of(prof2));
-
-        // Controlador con mocks
-        ProfesorController controller = new ProfesorController(repo, assembler);
-
-        List<EntityModel<Profesor>> resultado = controller.listar().getContent().stream().toList();
-
-        assertEquals(2, resultado.size());
+        ResponseEntity<?> response = profesorController.buscar(1L);
+        assertEquals(200, response.getStatusCode().value());
+        verify(profesorService).obtenerPorId(1L);
     }
 }

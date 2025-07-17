@@ -3,6 +3,8 @@ package com.edutech.edutech.controller;
 import com.edutech.edutech.assembler.UsuarioModelAssembler;
 import com.edutech.edutech.model.Usuario;
 import com.edutech.edutech.repository.UsuarioRepository;
+import com.edutech.edutech.service.UsuarioService;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.hateoas.EntityModel;
@@ -37,7 +39,9 @@ public class UsuarioControllerTest {
         when(assembler.toModel(u2)).thenReturn(EntityModel.of(u2));
 
         // 3) Instanciar el controlador con los mocks
-        UsuarioController controller = new UsuarioController(repo, assembler);
+        UsuarioService usuarioService = new UsuarioService(repo);
+        UsuarioController controller = new UsuarioController(usuarioService, assembler);
+
 
         // 4) Ejecutar y verificar
         List<EntityModel<Usuario>> resultado =
