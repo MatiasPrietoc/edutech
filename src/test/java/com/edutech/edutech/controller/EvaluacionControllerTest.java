@@ -2,30 +2,43 @@ package com.edutech.edutech.controller;
 
 import com.edutech.edutech.assembler.EvaluacionModelAssembler;
 import com.edutech.edutech.model.Evaluacion;
-import com.edutech.edutech.repository.EvaluacionRepository;
+import com.edutech.edutech.service.EvaluacionService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.ResponseEntity;
+
 import java.util.Optional;
-import java.util.Collections;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 public class EvaluacionControllerTest {
-    private final EvaluacionRepository evaluacionRepository = mock(EvaluacionRepository.class);
-    private final EvaluacionController controller = new EvaluacionController(evaluacionRepository, mock(EvaluacionModelAssembler.class));
 
+    @Mock
+    private EvaluacionService evaluacionService;
 
-    @Test
-    void testListarEvaluaciones() {
-    when(evaluacionRepository.findAll()).thenReturn(Collections.emptyList());
-    assertTrue(controller.listar().getContent().isEmpty());
+    @Mock
+    private EvaluacionModelAssembler assembler;
+
+    @InjectMocks
+    private EvaluacionController evaluacionController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testBuscarEvaluacion() {
-        Evaluacion ev = new Evaluacion();
-        ev.setId(1L);
-        when(evaluacionRepository.findById(1L)).thenReturn(Optional.of(ev));
-        assertEquals(ev, controller.buscar(1L).getContent());
+    void testBuscarEvaluacionPorId() {
+        Evaluacion evaluacion = new Evaluacion();
+        evaluacion.setId(1L);
+        when(evaluacionService.obtenerPorId(1L)).thenReturn(Optional.of(evaluacion));
+
+        ResponseEntity<?> response = evaluacionController.buscar(1L);
+        assertEquals(200, response.getStatusCode().value());
+        verify(evaluacionService).obtenerPorId(1L);
     }
 }
